@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser
 
 class Team(models.Model):
     class Meta:
@@ -12,7 +13,7 @@ class Team(models.Model):
         return self.name
 
 
-class User(models.Model):
+class User(AbstractBaseUser):
     class Meta:
         db_table = 'users'
 
@@ -20,8 +21,11 @@ class User(models.Model):
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
     verified = models.BooleanField(default=False)
-    password = models.CharField(max_length=32, blank=True)
+    password = models.CharField(max_length=255, blank=True)
     team = models.ForeignKey(Team, null=True, default=None, related_name='members')
+    verification_key = models.CharField(max_length=32, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return "%s %s" % (self.first_name, self.last_name)
