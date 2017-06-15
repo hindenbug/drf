@@ -27,5 +27,7 @@ class User(AbstractBaseUser):
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
+    USERNAME_FIELD = 'email'
+
     def __str__(self):
         return "%s %s" % (self.first_name, self.last_name)

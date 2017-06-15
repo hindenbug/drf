@@ -3,5 +3,6 @@ from . import views
 
 urlpatterns = [
     url(r'^register/$', views.register, name='register'),
+    url(r'^verify/(?P<key>\w{32})/$', views.verify, name='verify'),
 ]
 
