@@ -29,6 +29,37 @@ class ApiViewTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(User.objects.count(), 1)
+        self.assertFalse(self.user.verified)
+        self.assertIsNotNone(self.user.verification_key)
+
+    def test_register_new_user_via_invite_link(self):
+        user = User.objects.get(email=self.data["email"])
+        user.verified = True
+        user.team = Team.objects.create(name="Team")
+        user.save()
+
+        self.data = { "email": "test_email_new@gmail.com", "first_name": "Test", "last_name": "Lastname", "password": "12345678" }
+        response = self.client.post('/register/?code=' + str(self.user.invite_code), self.data, format='json')
+        new_user = User.objects.get(email=self.data["email"])
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(new_user.team, user.team)
+        self.assertEqual(User.objects.count(), 2)
+        self.assertFalse(new_user.verified)
+
+    def test_register_already_registered_user_via_invite_link(self):
+        user = User.objects.get(email=self.data["email"])
+        user.team = Team.objects.create(name="Team")
+        user.save()
+
+        self.data = { "email": "test_email@email.com", "first_name": "Test", "last_name": "Lastname", "password": "12345678" }
+        response = self.client.post('/register/?code=' + str(self.user.invite_code), self.data, format='json')
+        new_user = User.objects.get(email=self.data["email"])
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(new_user.team, user.team)
+        self.assertEqual(User.objects.count(), 1)
+        self.assertFalse(new_user.verified)
 
     def test_to_not_register_existing_user(self):
         response = self.client.post('/register/', self.data, format='json')

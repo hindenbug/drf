@@ -37,7 +37,13 @@ def register(request):
     """
     Register's a new user
     """
-    serializer = UserSerializer(data=request.data, context={'request': request})
+    data = request.data
+    invite_code = request.GET.get('code', None)
+
+    if invite_code is not None:
+        data['code'] = invite_code
+
+    serializer = UserSerializer(data=data, context={'request': request})
 
     if serializer.is_valid():
         try:
