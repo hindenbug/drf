@@ -25,7 +25,7 @@ SECRET_KEY = 'u2p*(2lky0_^^yd!x)81_iit+7hdy-v%yk0r(7wo)azw1uk#z9'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = 'api.User'
 # Application definition

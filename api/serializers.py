@@ -3,6 +3,7 @@ from rest_framework.reverse import reverse
 
 from .models import User, Team
 from .utils import generate_verification_key
+import random, string
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
