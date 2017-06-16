@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, UserManager
+from .utils import generate_temporary_token
 
 class Team(models.Model):
     class Meta:
@@ -28,6 +29,7 @@ class User(AbstractBaseUser):
     date_modified = models.DateTimeField(auto_now=True)
     token = models.CharField(max_length=40, unique=True, blank=True, null=True)
     invite_code = models.CharField(max_length=8, unique=True, blank=False, null=False)
+    password_reset_token = models.CharField(max_length=40, unique=True, null=True, blank=True)
 
     objects = UserManager()
 
@@ -35,3 +37,14 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return "%s %s" % (self.first_name, self.last_name)
+
+    def set_password_reset_token(self):
+        self.password_reset_token = generate_temporary_token()
+        self.save()
+
+        return self.password_reset_token
+
+    def set_new_password(self, password):
+        self.set_password(password)
+        self.password_reset_token = None
+        self.save()

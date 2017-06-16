@@ -63,7 +63,7 @@ def verify(request, key):
         user = User.objects.get(verification_key=key)
 
         if user.verified:
-            return Response({'error': ''}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Invalid request.'}, status=status.HTTP_400_BAD_REQUEST)
 
         user.verified = True
         user.save()
@@ -72,10 +72,31 @@ def verify(request, key):
         return Response({'error': 'Something went wrong, please try again.'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
+def password(request):
+    data = request.data
+    token = request.GET.get("token")
+
+    user = User.objects.filter(email=data["email"], password_reset_token=token).first()
+
+    if user:
+        user.set_new_password(data["password"])
+        return Response({"message": "Your password was updated successfully!"}, status=status.HTTP_200_OK)
+    else:
+        return Response({"message": "Invalid request."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
 @authentication_classes((CustomTokenAuthentication,))
 @permission_classes((IsAuthenticated,))
 def reset_password(request):
-    pass
+    user = request.user
+
+    token = user.set_password_reset_token()
+
+    return Response({'reset_password_link': "Here is you password reset link %s?token=%s" % \
+                     (reverse("password", request=request), token)}, \
+                    status=status.HTTP_200_OK)
+
 
 @api_view(["POST"])
 @authentication_classes((CustomTokenAuthentication,))

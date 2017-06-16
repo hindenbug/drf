@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from .models import User, Team
 from rest_framework.reverse import reverse
 
-import hashlib, random, string
+from .models import User, Team
+from .utils import generate_verification_key
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -35,10 +35,3 @@ class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = ['name']
-
-def generate_verification_key(email):
-    salt = hashlib.sha256(str(random.random())).hexdigest()[:5]
-    email = email
-    if isinstance(email, unicode):
-        email = email.encode('utf-8')
-        return hashlib.sha256(salt + email).hexdigest()[:32]
