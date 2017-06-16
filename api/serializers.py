@@ -25,9 +25,10 @@ class UserSerializer(serializers.ModelSerializer):
         return reverse("verify", kwargs={"key": obj.verification_key}, request=self.context['request'])
 
 class TeamSerializer(serializers.ModelSerializer):
+   # members = UserSerializer(many=True, read_only=True, default=[])
     class Meta:
         model = Team
-        fields = ['name', 'members']
+        fields = ['name']
 
 def generate_verification_key(email):
     salt = hashlib.sha256(str(random.random())).hexdigest()[:5]

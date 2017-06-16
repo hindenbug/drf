@@ -62,3 +62,17 @@ class ApiViewTests(TestCase):
 
         self.assertTrue(self.user.verified)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_user_login(self):
+        response = self.client.post('/login/', self.data, format='json')
+
+        self.user.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(self.user.token)
+
+    def test_invalid_user_login(self):
+        self.data = {'email': 'test_email@email.com', 'password': "password1"}
+        response = self.client.post('/login/', self.data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIsNone(self.user.token)

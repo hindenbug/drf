@@ -2,12 +2,34 @@
 from __future__ import unicode_literals
 
 from rest_framework import status
-from rest_framework.decorators import api_view, authentication_classes
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
-from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.permissions import IsAuthenticated
 
-from .serializers import UserSerializer
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
+from django.contrib.auth import authenticate
+
+from .authentication import CustomTokenAuthentication
+from .serializers import UserSerializer, TeamSerializer
 from .models import User
+import os, binascii
+
+@api_view(['POST'])
+def login(request):
+    """
+    Generate token for at login.
+    """
+    creds = {"email": request.data["email"], "password": request.data["password"]}
+    user = authenticate(**creds)
+
+    if not user:
+        return Response({"error": "Login failed"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    user.token = binascii.hexlify(os.urandom(20)).decode()
+    user.save()
+
+    return Response({"token": user.token})
 
 @api_view(['POST'])
 def register(request):
