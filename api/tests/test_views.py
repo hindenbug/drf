@@ -2,7 +2,8 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 
-from api.models import User
+from api.models import User, Team
+import json
 
 class ApiViewTests(TestCase):
 
@@ -76,3 +77,50 @@ class ApiViewTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertIsNone(self.user.token)
+
+    def test_team_creation_for_user_with_no_team(self):
+        self.data = {'email': 'test_email@email.com', 'password': "password"}
+        response = self.client.post('/login/', self.data, format='json')
+        token = json.loads(response.content)['token']
+        user = User.objects.get(email=self.data["email"])
+        user.verified = True
+        user.save()
+
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token)
+        response = self.client.post('/teams/', {"name": "Some Team"}, format='json')
+        user.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIsNotNone(user.team)
+
+    def test_team_creation_for_user_with_a_team(self):
+        self.data = {'email': 'test_email@email.com', 'password': "password"}
+        response = self.client.post('/login/', self.data, format='json')
+        token = json.loads(response.content)['token']
+        user = User.objects.get(email=self.data["email"])
+        user.verified = True
+        user.team = Team.objects.create(name="Test Team")
+        user.save()
+
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token)
+        response = self.client.post('/teams/', {"name": "Some Team"}, format='json')
+        user.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIsNotNone(user.team)
+        self.assertEqual(user.team.name, "Test Team")
+
+    def test_team_creation_for_user_with_no_team_without_passing_name(self):
+        self.data = {'email': 'test_email@email.com', 'password': "password"}
+        response = self.client.post('/login/', self.data, format='json')
+        token = json.loads(response.content)['token']
+        user = User.objects.get(email=self.data["email"])
+        user.verified = True
+        user.save()
+
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token)
+        response = self.client.post('/teams/', {}, format='json')
+        user.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIsNone(user.team)

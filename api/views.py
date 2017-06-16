@@ -63,3 +63,31 @@ def verify(request, key):
         return Response({'message': 'Your account has been verified successfully.'}, status=status.HTTP_200_OK)
     except(User.DoesNotExist, ObjectDoesNotExist,):
         return Response({'error': 'Something went wrong, please try again.'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@authentication_classes((CustomTokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+def reset_password(request):
+    pass
+
+@api_view(["POST"])
+@authentication_classes((CustomTokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+def create_team(request):
+    user = request.user
+
+    if user and user.team is not None:
+        return Response({'error': 'You already have a team.' }, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer = TeamSerializer(data=request.data, context={'request': request})
+
+    if serializer.is_valid():
+        try:
+            team = serializer.save()
+            user.team = team
+            user.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except IntegrityError, error:
+            return Response(str(error), status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

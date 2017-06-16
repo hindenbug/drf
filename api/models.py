@@ -7,7 +7,7 @@ class Team(models.Model):
     class Meta:
         db_table = 'teams'
 
-    name = models.CharField(max_length=50, blank=True, unique=True)
+    name = models.CharField(max_length=50, blank=False, unique=True)
 
     def __str__(self):
         return self.name

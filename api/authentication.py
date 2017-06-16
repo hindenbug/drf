@@ -1,7 +1,10 @@
 from rest_framework.authentication import TokenAuthentication, BasicAuthentication
 from rest_framework import exceptions
+from rest_framework import HTTP_HEADER_ENCODING, exceptions
+
 from django.contrib.auth import get_user_model
 from django.utils.six import text_type
+from django.utils.translation import ugettext as _
 
 def get_authorization_header(request):
     auth = request.META.get('HTTP_AUTHORIZATION', b'')
