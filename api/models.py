@@ -27,6 +27,7 @@ class User(AbstractBaseUser):
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     token = models.CharField(max_length=40, unique=True, blank=True, null=True)
+    invite_code = models.CharField(max_length=8, unique=True, blank=False, null=False)
 
     objects = UserManager()
 

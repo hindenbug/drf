@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.reverse import reverse
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
@@ -91,3 +92,16 @@ def create_team(request):
             return Response(str(error), status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["GET"])
+@authentication_classes((CustomTokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+def invite(request):
+    user = request.user
+
+    if user and not user.team:
+        return Response({'error': 'You need to be a member of a team in order to invite other people.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({'invite_link': "%s would like to invite you to join %s?code=%s" % \
+                     (user.first_name + user.last_name, reverse("register", request=request), user.invite_code)}, \
+                    status=status.HTTP_200_OK)
