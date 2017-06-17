@@ -7,9 +7,9 @@
 ### Run Locally
 
 ```
-git clone git@github.com:hindenbug/i2x-drf.git
+git clone git@github.com:hindenbug/drf.git
 
-cd i2x-drf
+cd drf
 
 pip install -r requirements.txt
 
@@ -188,7 +188,7 @@ http POST https://stark-atoll-31508.herokuapp.com/password/?token=7cee6503bd0f42
 > "Authorization: Token e5c9f0e70d908d53c01e2d7bc1cd63e4f0396418"
 ```
 
-##### Returns
+#### Returns
 ```
 HTTP/1.0 200 OK
 {
@@ -240,7 +240,7 @@ Api to invite other users. Generates a invitation link.
 http GET https://stark-atoll-31508.herokuapp.com/invite/ "Authorization: Token e5c9f0e70d908d53c01e2d7bc1cd63e4f0396418"
 ```
 
-Returns
+#### Returns
 
 ```
 HTTP/1.0 200 OK
@@ -254,3 +254,7 @@ HTTP/1.0 200 OK
 Error | Description
 ----- | ------------
 400   | User needs to be a member of a team before they can share invite with others.
+
+
+### Heroku Link
+[Api](https://stark-atoll-31508.herokuapp.com/)
